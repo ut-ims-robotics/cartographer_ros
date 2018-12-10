@@ -74,7 +74,33 @@ bool Run() {
       node_handle.serviceClient<cartographer_ros_msgs::StartTrajectory>(
           kStartTrajectoryServiceName);
   cartographer_ros_msgs::StartTrajectory srv;
-  srv.request.options = ToRosMessage(LoadOptions());
+  TrajectoryOptions to = LoadOptions();
+  std::string s;
+  std::string param_name = "odom_frame";
+  if (n.searchParam("b", param_name))
+  {
+    n.getParam(param_name, s);
+    LOG_INFO() << "Found parameter" << param_name << " with value " << s;
+  }
+  else
+  {
+    LOG_INFO() << "No param 'b' found in an upward search";
+  }
+
+  LOG(INFO) << "Started custom trajectory node!";
+  if (node_handle.getParam("odom_frame", s)) {
+      to.odom_frame = s;
+      LOG(INFO) << "Set odom_frame param as: " << to.odom_frame;
+  }
+    if (node_handle.getParam("published_frame", s)) {
+      to.published_frame = s;
+      LOG(INFO) << "Set published_frame param as: " << to.published_frame;
+  }
+    if (node_handle.getParam("tracking_frame", s)) {
+      to.tracking_frame = s;
+      LOG(INFO) << "Set tracking_frame param as: " << to.tracking_frame;
+  }
+  srv.request.options = ToRosMessage(to);
   srv.request.topics.laser_scan_topic = node_handle.resolveName(
       kLaserScanTopic, true /* apply topic remapping */);
   srv.request.topics.multi_echo_laser_scan_topic =
