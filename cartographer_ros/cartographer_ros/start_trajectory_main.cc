@@ -75,30 +75,20 @@ bool Run() {
           kStartTrajectoryServiceName);
   cartographer_ros_msgs::StartTrajectory srv;
   TrajectoryOptions to = LoadOptions();
-  std::string s;
-  std::string param_name = "odom_frame";
-  if (n.searchParam("b", param_name))
-  {
-    n.getParam(param_name, s);
-    LOG_INFO() << "Found parameter" << param_name << " with value " << s;
-  }
-  else
-  {
-    LOG_INFO() << "No param 'b' found in an upward search";
-  }
-
+  std::string frame_param;
+ 
   LOG(INFO) << "Started custom trajectory node!";
-  if (node_handle.getParam("odom_frame", s)) {
-      to.odom_frame = s;
-      LOG(INFO) << "Set odom_frame param as: " << to.odom_frame;
+  if (node_handle.getParam("cartographer_start_trajectory/odom_frame", frame_param)) {
+      to.odom_frame = frame_param;
+      LOG(INFO) << "Set odom_frame as: " << to.odom_frame;
   }
-    if (node_handle.getParam("published_frame", s)) {
-      to.published_frame = s;
-      LOG(INFO) << "Set published_frame param as: " << to.published_frame;
+    if (node_handle.getParam("cartographer_start_trajectory/published_frame", frame_param)) {
+      to.published_frame = frame_param;
+      LOG(INFO) << "Set published_frame as: " << to.published_frame;
   }
-    if (node_handle.getParam("tracking_frame", s)) {
-      to.tracking_frame = s;
-      LOG(INFO) << "Set tracking_frame param as: " << to.tracking_frame;
+    if (node_handle.getParam("cartographer_start_trajectory/tracking_frame", frame_param)) {
+      to.tracking_frame = frame_param;
+      LOG(INFO) << "Set tracking_frame as: " << to.tracking_frame;
   }
   srv.request.options = ToRosMessage(to);
   srv.request.topics.laser_scan_topic = node_handle.resolveName(
@@ -110,6 +100,7 @@ bool Run() {
   srv.request.topics.imu_topic = node_handle.resolveName(kImuTopic, true);
   srv.request.topics.odometry_topic =
       node_handle.resolveName(kOdometryTopic, true);
+      LOG(INFO) << " Odom topic resolved as:  " << srv.request.topics.odometry_topic;
 
   if (!client.call(srv)) {
     LOG(ERROR) << "Failed to call " << kStartTrajectoryServiceName << ".";
@@ -132,10 +123,10 @@ bool Run() {
 int main(int argc, char** argv) {
   google::InitGoogleLogging(argv[0]);
   google::SetUsageMessage(
-      "\n\n"
+      "\node_handle_\node_handle_"
       "Convenience tool around the start_trajectory service. This takes a Lua "
       "file that is accepted by the node as well and starts a new trajectory "
-      "using its settings.\n");
+      "using its settings.\node_handle_");
   google::ParseCommandLineFlags(&argc, &argv, true);
 
   CHECK(!FLAGS_configuration_directory.empty())
